@@ -89,10 +89,12 @@ export default Vue.extend({
                 return
             }
 
-            this.$router.push("/")
+            this.$router.push({
+                name: "customFormSuccess"
+            });
             let apiMessage = response.data.message
-
             var message: APIResponseMessage = {
+                formName: this.formConfig.name,
                 contents: apiMessage
                     ? apiMessage
                     : "Successfully posted form data",

@@ -7,6 +7,7 @@ import Home from './views/Home.vue'
 import Login from './views/Login.vue'
 import RowListing from './views/RowListing.vue'
 import AddForm from './views/AddForm.vue'
+import CustomFormSuccess from './views/CustomFormSuccess.vue'
 
 Vue.use(Router)
 
@@ -47,6 +48,11 @@ export default new Router({
             name: 'editRow',
             component: EditRow,
             props: true
+        },
+        {
+            path: '/custom-form-success/',
+            name: 'customFormSuccess',
+            component: CustomFormSuccess
         }
     ]
 })

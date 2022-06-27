@@ -104,6 +104,9 @@ class Movie(Table):
     genre = SmallInt(choices=Genre, null=True)
     studio = ForeignKey(Studio)
 
+class BatchJobModel(BaseModel):
+    pass
+
 
 class BusinessEmailModel(BaseModel):
     email: str
@@ -127,6 +130,10 @@ class BookingModel(BaseModel):
         if "@" not in v:
             raise ValueError("not valid email")
         return v
+
+
+def batch_job_endpoint(request, data):
+    return '{"first_name": "Michael", "last_name": "Rodgers", "department": "Marketing"}'
 
 
 def business_email_endpoint(request, data):
@@ -211,6 +218,12 @@ director_config = TableConfig(
 APP = create_admin(
     [movie_config, director_config, Studio],
     forms=[
+        FormConfig(
+            name="Batch Job Endpoint",
+            pydantic_model=BatchJobModel,
+            endpoint=batch_job_endpoint,
+            description="Run a batch reporting job.",
+        ),
         FormConfig(
             name="Business email form",
             pydantic_model=BusinessEmailModel,

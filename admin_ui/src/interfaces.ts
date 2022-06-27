@@ -33,6 +33,7 @@ export interface FetchSingleRowConfig {
 
 export interface APIResponseMessage {
     contents: string
+    formName?: string
     type: string
 }
 
