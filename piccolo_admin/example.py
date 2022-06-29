@@ -52,6 +52,32 @@ class User(BaseUser, tablename="piccolo_user"):
     pass
 
 
+class ThingOne(Table):
+    name = Varchar(length=300, null=False)
+
+
+class ThingTwo(Table):
+    name = Varchar(length=300, null=False)
+    thing_one = ForeignKey(references=ThingOne)
+
+
+class ThingThree(Table):
+    name = Varchar(length=300, null=False)
+    thing_two = ForeignKey(references=ThingTwo)
+
+    @classmethod
+    def get_readable(cls):
+        return Readable(
+            template="three name: %s - two name: %s - one name: %s",
+            columns=[cls.name, cls.thing_two.name, cls.thing_two.thing_one.name],
+        )
+
+
+class ThingFour(Table):
+    name = Varchar(length=300, null=False)
+    thing_three = ForeignKey(references=ThingThree)
+
+
 class Director(Table, help_text="The main director for a movie."):
     class Gender(enum.Enum):
         male = "m"
@@ -185,6 +211,10 @@ TABLE_CLASSES: t.Tuple[t.Type[Table], ...] = (
     Studio,
     User,
     Sessions,
+    ThingOne,
+    ThingTwo,
+    ThingThree,
+    ThingFour,
 )
 
 movie_config = TableConfig(
@@ -216,7 +246,15 @@ director_config = TableConfig(
 )
 
 APP = create_admin(
-    [movie_config, director_config, Studio],
+    [
+        movie_config,
+        director_config,
+        Studio,
+        ThingFour,
+        ThingThree,
+        ThingTwo,
+        ThingOne,
+    ],
     forms=[
         FormConfig(
             name="Batch Job Endpoint",
@@ -275,6 +313,11 @@ def populate_data(inflate: int = 0, engine: str = "sqlite"):
     Director.insert(*[Director(**d) for d in DIRECTORS]).run_sync()  # type: ignore # noqa: E501
     Movie.insert(*[Movie(**m) for m in MOVIES]).run_sync()  # type: ignore
     Studio.insert(*[Studio(**s) for s in STUDIOS]).run_sync()  # type: ignore
+
+    thing_one = ThingOne.insert(ThingOne(name="thing_one")).run_sync()  # type: ignore
+    thing_two = ThingTwo.insert(ThingTwo(name="thing_two", thing_one=thing_one[0]["id"])).run_sync()  # type: ignore
+    thing_three = ThingThree.insert(ThingThree(name="thing_three", thing_two=thing_two[0]["id"])).run_sync()  # type: ignore
+    thing_four = ThingFour.insert(ThingFour(name="thing_four", thing_three=thing_three[0]["id"])).run_sync()  # type: ignore
 
     if engine == "postgres":
         # We need to update the sequence, as we explicitly set the IDs for the
